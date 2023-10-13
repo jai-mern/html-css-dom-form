@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('dataForm');
+            const table = document.getElementById('dataTable');
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                // Get form values
+                const firstNameInput = document.getElementById('firstName');
+                const lastNameInput = document.getElementById('lastName');
+                const addressInput = document.getElementById('address');
+                const pincodeInput = document.getElementById('pincode');
+                const genderInput = document.querySelector('input[name="gender"]:checked');
+                const stateInput = document.getElementById('state');
+                const countryInput = document.getElementById('country');
+                const foodCheckbox = document.getElementById('foodPreference');
+
+                // Validate form data
+                if (
+                    firstNameInput.value.trim() === '' ||
+                    lastNameInput.value.trim() === '' ||
+                    addressInput.value.trim() === '' ||
+                    pincodeInput.value.trim() === '' ||
+                    !genderInput ||
+                    stateInput.value.trim() === '' ||
+                    countryInput.value.trim() === ''
+                ) {
+                    alert('Please fill in all the fields.');
+                    return;
+                }
+
+                // Add data to the table
+                const newRow = table.insertRow(-1);
+                const cells = Array.from({ length: 8 }, () => newRow.insertCell());
+
+                cells[0].textContent = firstNameInput.value;
+                cells[1].textContent = lastNameInput.value;
+                cells[2].textContent = addressInput.value;
+                cells[3].textContent = pincodeInput.value;
+                cells[4].textContent = genderInput.value;
+                cells[5].textContent = foodCheckbox.checked ? 'Yes' : 'No';
+                cells[6].textContent = stateInput.value;
+                cells[7].textContent = countryInput.value;
+
+                // Clear the form inputs
+                form.reset();
+            });
+        });
+    </script>
+    <title>Form and Table Example</title>
+</head>
+<body>
+
+    <form id="dataForm">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required>
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required>
+
+        <label for="pincode">Pincode:</label>
+        <input type="text" id="pincode" name="pincode" required>
+
+        <label>Gender:</label>
+        <input type="radio" id="male" name="gender" value="Male" required>
+        <label for="male">Male</label>
+        <input type="radio" id="female" name="gender" value="Female" required>
+        <label for="female">Female</label>
+
+        <label for="foodPreference">Food Preference:</label>
+        <input type="checkbox" id="foodPreference" name="foodPreference">
+
+        <label for="state">State:</label>
+        <input type="text" id="state" name="state" required>
+
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" required>
+
+        <button type="submit">Add to Table</button>
+    </form>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Address</th>
+                <th>Pincode</th>
+                <th>Gender</th>
+                <th>Food</th>
+                <th>State</th>
+                <th>Country</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Table rows will be dynamically added here using JavaScript -->
+        </tbody>
+    </table>
+
+</body>
+</html>
