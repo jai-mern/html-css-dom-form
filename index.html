@@ -7,129 +7,196 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            text-align: center;
         }
 
-        form {
-            margin-bottom: 20px;
+        #calculator {
+            max-width: 400px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        table {
-            border-collapse: collapse;
+        input {
             width: 100%;
+            font-size: 18px;
+            padding: 10px;
+            margin-bottom: 10px;
         }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+        button {
+            width: 48px;
+            height: 48px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
         }
 
-        th {
-            background-color: #f2f2f2;
+        button.operator {
+            background-color: #f1c40f; /* Yellow */
+        }
+
+        button.equal {
+            background-color: #2ecc71; /* Green */
+        }
+
+        button.memory {
+            background-color: #3498db; /* Blue */
+        }
+
+        @media screen and (max-width: 400px) {
+            button {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
         }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('dataForm');
-            const table = document.getElementById('dataTable');
+            let currentInput = '';
+            let currentOperation = '';
+            let previousValue = null;
 
-            form.addEventListener('submit', function (event) {
-                event.preventDefault();
+            const resultDisplay = document.getElementById('result');
 
-                // Get form values
-                const firstNameInput = document.getElementById('firstName');
-                const lastNameInput = document.getElementById('lastName');
-                const addressInput = document.getElementById('address');
-                const pincodeInput = document.getElementById('pincode');
-                const genderInput = document.querySelector('input[name="gender"]:checked');
-                const stateInput = document.getElementById('state');
-                const countryInput = document.getElementById('country');
-                const foodCheckbox = document.getElementById('foodPreference');
+            function updateDisplay() {
+                resultDisplay.value = currentInput || '0';
+            }
 
-                // Validate form data
-                if (
-                    firstNameInput.value.trim() === '' ||
-                    lastNameInput.value.trim() === '' ||
-                    addressInput.value.trim() === '' ||
-                    pincodeInput.value.trim() === '' ||
-                    !genderInput ||
-                    stateInput.value.trim() === '' ||
-                    countryInput.value.trim() === ''
-                ) {
-                    alert('Please fill in all the fields.');
-                    return;
+            function handleNumberKeyPress(number) {
+                currentInput += number;
+                updateDisplay();
+            }
+
+            function handleOperationKeyPress(operation) {
+                if (currentInput !== '') {
+                    if (previousValue !== null) {
+                        performCalculation();
+                    } else {
+                        previousValue = parseFloat(currentInput);
+                        currentInput = '';
+                    }
+
+                    currentOperation = operation;
                 }
+            }
 
-                // Add data to the table
-                const newRow = table.insertRow(-1);
-                const cells = Array.from({ length: 8 }, () => newRow.insertCell());
+            function performCalculation() {
+                const inputValue = parseFloat(currentInput);
+                switch (currentOperation) {
+                    case '+':
+                        previousValue += inputValue;
+                        break;
+                    case '-':
+                        previousValue -= inputValue;
+                        break;
+                    case '*':
+                        previousValue *= inputValue;
+                        break;
+                    case '/':
+                        if (inputValue !== 0) {
+                            previousValue /= inputValue;
+                        } else {
+                            alert("Cannot divide by zero!");
+                        }
+                        break;
+                    case '%':
+                        previousValue %= inputValue;
+                        break;
+                }
+                currentInput = '';
+                currentOperation = '';
+                updateDisplay();
+            }
 
-                cells[0].textContent = firstNameInput.value;
-                cells[1].textContent = lastNameInput.value;
-                cells[2].textContent = addressInput.value;
-                cells[3].textContent = pincodeInput.value;
-                cells[4].textContent = genderInput.value;
-                cells[5].textContent = foodCheckbox.checked ? 'Yes' : 'No';
-                cells[6].textContent = stateInput.value;
-                cells[7].textContent = countryInput.value;
+            function handleMemoryOperation(memoryOp) {
+                switch (memoryOp) {
+                    case 'M+':
+                        const currentValue = parseFloat(resultDisplay.value);
+                        const storedValue = localStorage.getItem('memory') || 0;
+                        const newMemoryValue = currentValue + parseFloat(storedValue);
+                        localStorage.setItem('memory', newMemoryValue);
+                        break;
+                    case 'M-':
+                        const currentVal = parseFloat(resultDisplay.value);
+                        const storedVal = localStorage.getItem('memory') || 0;
+                        const newMemValue = currentVal - parseFloat(storedVal);
+                        localStorage.setItem('memory', newMemValue);
+                        break;
+                    case 'MR':
+                        currentInput = localStorage.getItem('memory') || '';
+                        updateDisplay();
+                        break;
+                    case 'MC':
+                        localStorage.removeItem('memory');
+                        break;
+                }
+            }
 
-                // Clear the form inputs
-                form.reset();
-            });
+            function handleKeyPress(event) {
+                const keyValue = event.key;
+                if (!isNaN(keyValue) || keyValue === '.') {
+                    handleNumberKeyPress(keyValue);
+                } else if (['+', '-', '*', '/', '%'].includes(keyValue)) {
+                    handleOperationKeyPress(keyValue);
+                } else if (keyValue === 'Enter') {
+                    performCalculation();
+                } else if (keyValue === 'Escape') {
+                    currentInput = '';
+                    currentOperation = '';
+                    previousValue = null;
+                    updateDisplay();
+                }
+            }
+
+            document.addEventListener('keydown', handleKeyPress);
         });
     </script>
-    <title>Form and Table Example</title>
+    <title>Responsive Calculator</title>
 </head>
 <body>
 
-    <form id="dataForm">
-        <label for="firstName">First Name:</label>
-        <input type="text" id="firstName" name="firstName" required>
+    <div id="calculator">
+        <input id="result" type="text" value="0" disabled>
+        <br>
 
-        <label for="lastName">Last Name:</label>
-        <input type="text" id="lastName" name="lastName" required>
+        <button onclick="handleNumberKeyPress('1')">1</button>
+        <button onclick="handleNumberKeyPress('2')">2</button>
+        <button onclick="handleNumberKeyPress('3')">3</button>
+        <button class="operator" onclick="handleOperationKeyPress('+')">+</button>
 
-        <label for="address">Address:</label>
-        <input type="text" id="address" name="address" required>
+        <br>
 
-        <label for="pincode">Pincode:</label>
-        <input type="text" id="pincode" name="pincode" required>
+        <button onclick="handleNumberKeyPress('4')">4</button>
+        <button onclick="handleNumberKeyPress('5')">5</button>
+        <button onclick="handleNumberKeyPress('6')">6</button>
+        <button class="operator" onclick="handleOperationKeyPress('-')">-</button>
 
-        <label>Gender:</label>
-        <input type="radio" id="male" name="gender" value="Male" required>
-        <label for="male">Male</label>
-        <input type="radio" id="female" name="gender" value="Female" required>
-        <label for="female">Female</label>
+        <br>
 
-        <label for="foodPreference">Food Preference:</label>
-        <input type="checkbox" id="foodPreference" name="foodPreference">
+        <button onclick="handleNumberKeyPress('7')">7</button>
+        <button onclick="handleNumberKeyPress('8')">8</button>
+        <button onclick="handleNumberKeyPress('9')">9</button>
+        <button class="operator" onclick="handleOperationKeyPress('*')">*</button>
 
-        <label for="state">State:</label>
-        <input type="text" id="state" name="state" required>
+        <br>
 
-        <label for="country">Country:</label>
-        <input type="text" id="country" name="country" required>
+        <button onclick="handleNumberKeyPress('0')">0</button>
+        <button onclick="handleOperationKeyPress('.')">.</button>
+        <button class="equal" onclick="performCalculation()">=</button>
+        <button class="operator" onclick="handleOperationKeyPress('/')">/</button>
+        <button class="operator" onclick="handleOperationKeyPress('%')">%</button>
 
-        <button type="submit">Add to Table</button>
-    </form>
+        <br>
 
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Address</th>
-                <th>Pincode</th>
-                <th>Gender</th>
-                <th>Food</th>
-                <th>State</th>
-                <th>Country</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Table rows will be dynamically added here using JavaScript -->
-        </tbody>
-    </table>
+        <button class="memory" onclick="handleMemoryOperation('M+')">M+</button>
+        <button class="memory" onclick="handleMemoryOperation('M-')">M-</button>
+        <button class="memory" onclick="handleMemoryOperation('MR')">MR</button>
+        <button class="memory" onclick="handleMemoryOperation('MC')">MC</button>
+    </div>
 
 </body>
 </html>
